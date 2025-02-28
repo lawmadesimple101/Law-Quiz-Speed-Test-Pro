@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Law Quiz Speed Test</title>
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --accent-color: #e74c3c;
+            --light-color: #ecf0f1;
+            --dark-color: #2c3e50;
+            --success-color: #2ecc71;
+            --warning-color: #f39c12;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f5f7fa;
+            color: var(--dark-color);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background-color: var(--primary-color);
+            color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        h2 {
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+            color: var(--secondary-color);
+        }
+
+        .setup-section {
+            background-color: white;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .topic-selector {
+            margin-bottom: 20px;
+        }
+
+        select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid var(--secondary-color);
+            border-radius: 6px;
+            font-size: 1rem;
+            background-color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.3);
+        }
+
+        .start-btn {
+            display: block;
+            width: 100%;
+            padding: 14px;
+            background-color: var(--secondary-color);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .start-btn:hover {
+            background-color: #2980b9;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .quiz-section {
+            display: none;
+            background-color: white;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+
+        .timer-container {
+            margin-bottom: 20px;
+        }
+
+        .timer-bar {
+            height: 10px;
+            width: 100%;
+            background-color: #e0e0e0;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        .timer-progress {
+            height: 100%;
+            width: 100%;
+            background-color: var(--accent-color);
+            transition: width 0.1s linear;
+        }
+
+        .timer-text {
+            text-align: center;
+            font-weight: bold;
+            margin-top: 5px;
+        }
+
+        .question-container {
+            margin-bottom: 20px;
+        }
+
+        .question-text {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+
+        .options-container {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 10px;
+        }
+
+        .option {
+            padding: 12px 15px;
+            background-color: var(--light-color);
+            border: 2px solid #dcdfe6;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .option:hover {
+            background-color: #d6eaf8;
+            border-color: var(--secondary-color);
+        }
+
+        .option.selected {
+            background-color: #d6eaf8;
+            border-color: var(--secondary-color);
+        }
+
+        .option.correct {
+            background-color: var(--success-color);
+            border-color: #27ae60;
+            color: white;
+        }
+
+        .option.incorrect {
+            background-color: var(--accent-color);
+            border-color: #c0392b;
+            color: white;
+        }
+
+        .question-counter {
+            position: absolute;
+            top: 15px;
+            right: 25px;
+            font-weight: bold;
+            color: var(--secondary-color);
+        }
+
+        .results-section {
+            display: none;
+            background-color: white;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .score-display {
+            font-size: 2rem;
+            margin: 20px 0;
+            color: var(--primary-color);
+        }
+
+        .score-percent {
+            font-size: 3rem;
+            font-weight: bold;
+            color: var(--secondary-color);
+            margin: 10px 0;
+        }
+
+        .time-taken {
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+            color: var(--dark-color);
+        }
+
+        .retry-btn {
+            display: inline-block;
+            padding: 12px 25px;
+            background-color: var(--secondary-color);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .retry-btn:hover {
+            background-color: #2980b9;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        @media (min-width: 768px) {
+            .options-container {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Law Quiz Speed Test</h1>
+            <p>Test your knowledge of legal concepts with timed questions</p>
+        </header>
+
+        <div class="setup-section" id="setupSection">
+            <h2>Quiz Setup</h2>
+            <div class="topic-selector">
+                <label for="topicSelect">Select a Topic:</label>
+                <select id="topicSelect">
+                    <option value="" disabled selected>-- Select a Law Topic --</option>
+                    <option value="constitutional">Constitutional Law</option>
+                    <option value="criminal">Criminal Law</option>
+                    <option value="contract">Contract Law</option>
+                    <option value="tort">Tort Law</option>
+                    <option value="property">Property Law</option>
+                    <option value="business">Business Law</option>
+                    <option value="international">International Law</option>
+                    <option value="environmental">Environmental Law</option>
+                    <option value="family">Family Law</option>
+                    <option value="intellectual">Intellectual Property Law</option>
+                </select>
+            </div>
+            <button class="start-btn" id="startBtn">Start Quiz</button>
+        </div>
+
+        <div class="quiz-section" id="quizSection">
+            <div class="question-counter" id="questionCounter">Question 1/10</div>
+            <div class="timer-container">
+                <div class="timer-bar">
+                    <div class="timer-progress" id="timerProgress"></div>
+                </div>
+                <div class="timer-text" id="timerText">20 seconds</div>
+            </div>
+            <div class="question-container">
+                <div class="question-text" id="questionText"></div>
+                <div class="options-container" id="optionsContainer"></div>
+            </div>
+        </div>
+
+        <div class="results-section" id="resultsSection">
+            <h2>Quiz Results</h2>
+            <div class="score-display">
+                You scored:
+                <div class="score-percent" id="scorePercent">0%</div>
+                <div id="scoreText">0 out of 10 correct</div>
+            </div>
+            <div class="time-taken" id="timeTaken">Total time: 0 seconds</div>
+            <button class="retry-btn" id="retryBtn">Try Again</button>
+        </div>
+    </div>
+
+    <script>
+        // DOM Elements
+        const setupSection = document.getElementById('setupSection');
+        const quizSection = document.getElementById('quizSection');
+        const resultsSection = document.getElementById('resultsSection');
+        const topicSelect = document.getElementById('topicSelect');
+        const startBtn = document.getElementById('startBtn');
+        const questionText = document.getElementById('questionText');
+        const optionsContainer = document.getElementById('optionsContainer');
+        const questionCounter = document.getElementById('questionCounter');
+        const timerProgress = document.getElementById('timerProgress');
+        const timerText = document.getElementById('timerText');
+        const scorePercent = document.getElementById('scorePercent');
+        const scoreText = document.getElementById('scoreText');
+        const timeTaken = document.getElementById('timeTaken');
+        const retryBtn = document.getElementById('retryBtn');
+
+        // Quiz State
+        let currentQuestion = 0;
+        let score = 0;
+        let timer = null;
+        let timeLeft = 20;
+        let quizQuestions = [];
+        let startTime = 0;
+        let totalTime = 0;
+        let selectedTopic = '';
+        let isAnswered = false;
+
+        // Question Banks for Each Topic
+        const questionBanks = {
+            constitutional: [
+                // Constitutional Law questions will be added here
+            ],
+            criminal: [
+                // Criminal Law questions will be added here
+            ],
+            contract: [
+                // Contract Law questions will be added here
+            ],
+            tort: [
+                // Tort Law questions will be added here
+            ],
+            property: [
+                // Property Law questions will be added here
+            ],
+            business: [
+                // Business Law questions will be added here
+            ],
+            international: [
+                // International Law questions will be added here
+            ],
+            environmental: [
+                // Environmental Law questions will be added here
+            ],
+            family: [
+                // Family Law questions will be added here
+            ],
+            intellectual: [
+                // Intellectual Property Law questions will be added here
+            ]
+        };
+
+        // Initialize the quiz
+        function init() {
+            startBtn.addEventListener('click', startQuiz);
+            retryBtn.addEventListener('click', resetQuiz);
+        }
+
+        // Start the quiz
+        function startQuiz() {
+            selectedTopic = topicSelect.value;
+            if (!selectedTopic) {
+                alert('Please select a topic before starting the quiz');
+                return;
+            }
+
+            // Get questions for the selected topic
+            const topicQuestions = questionBanks[selectedTopic];
+            if (!topicQuestions || topicQuestions.length < 10) {
+                alert('Not enough questions available for this topic. Please try another topic.');
+                return;
+            }
+
+            // Randomly select 10 questions
+            quizQuestions = getRandomQuestions(topicQuestions, 10);
+            
+            // Hide setup, show quiz
+            setupSection.style.display = 'none';
+            quizSection.style.display = 'block';
+            resultsSection.style.display = 'none';
+            
+            // Reset quiz state
+            currentQuestion = 0;
+            score = 0;
+            startTime = new Date().getTime();
+            
+            // Load first question
+            loadQuestion();
+        }
+
+        // Get random questions from a topic
+        function getRandomQuestions(questions, count) {
+            const shuffled = [...questions].sort(() => 0.5 - Math.random());
+            return shuffled.slice(0, count);
+        }
+
+        // Load a question
+        function loadQuestion() {
+            if (currentQuestion >= quizQuestions.length) {
+                endQuiz();
+                return;
+            }
+
+            // Reset for new question
+            isAnswered = false;
+            timeLeft = 20;
+            updateTimerDisplay();
+            
+            // Update question counter
+            questionCounter.textContent = `Question ${currentQuestion + 1}/${quizQuestions.length}`;
+            
+            // Get current question
+            const question = quizQuestions[currentQuestion];
+            
+            // Display question and options
+            questionText.textContent = question.text;
+            optionsContainer.innerHTML = '';
+            
+            // Add options
+            question.options.forEach((option, index) => {
+                const optionElement = document.createElement('div');
+                optionElement.classList.add('option');
+                optionElement.textContent = option;
+                optionElement.dataset.index = index;
+                optionElement.addEventListener('click', () => selectOption(index));
+                optionsContainer.appendChild(optionElement);
+            });
+            
+            // Start timer
+            clearInterval(timer);
+            timer = setInterval(updateTimer, 100);
+        }
+
+        // Update the timer
+        function updateTimer() {
+            timeLeft -= 0.1;
+            updateTimerDisplay();
+            
+            if (timeLeft <= 0) {
+                clearInterval(timer);
+                timeOut();
+            }
+        }
+
+        // Update timer display
+        function updateTimerDisplay() {
+            const percentage = (timeLeft / 20) * 100;
+            timerProgress.style.width = `${percentage}%`;
+            timerText.textContent = `${Math.ceil(timeLeft)} seconds`;
+            
+            // Change color based on time left
+            if (timeLeft <= 5) {
+                timerProgress.style.backgroundColor = '#e74c3c'; // Red
+            } else if (timeLeft <= 10) {
+                timerProgress.style.backgroundColor = '#f39c12'; // Orange
+            } else {
+                timerProgress.style.backgroundColor = '#3498db'; // Blue
+            }
+        }
+
+        // Handle option selection
+        function selectOption(optionIndex) {
+            if (isAnswered) return;
+            
+            isAnswered = true;
+            clearInterval(timer);
+            
+            const options = document.querySelectorAll('.option');
+            const currentQ = quizQuestions[currentQuestion];
+            const correctIndex = currentQ.correctIndex;
+            
+            // Mark selected option
+            options[optionIndex].classList.add('selected');
+            
+            // Check if correct
+            if (optionIndex === correctIndex) {
+                options[optionIndex].classList.add('correct');
+                score++;
+            } else {
+                options[optionIndex].classList.add('incorrect');
+                options[correctIndex].classList.add('correct');
+            }
+            
+            // Move to next question after delay
+            setTimeout(() => {
+                currentQuestion++;
+                loadQuestion();
+            }, 1500);
+        }
+
+        // Handle time out
+        function timeOut() {
+            if (isAnswered) return;
+            
+            isAnswered = true;
+            
+            const options = document.querySelectorAll('.option');
+            const correctIndex = quizQuestions[currentQuestion].correctIndex;
+            
+            // Show correct answer
+            options[correctIndex].classList.add('correct');
+            
+            // Move to next question after delay
+            setTimeout(() => {
+                currentQuestion++;
+                loadQuestion();
+            }, 1500);
+        }
+
+        // End the quiz
+        function endQuiz() {
+            clearInterval(timer);
+            totalTime = Math.round((new Date().getTime() - startTime) / 1000);
+            
+            // Hide quiz, show results
+            quizSection.style.display = 'none';
+            resultsSection.style.display = 'block';
+            
+            // Update results
+            const percentage = Math.round((score / quizQuestions.length) * 100);
+            scorePercent.textContent = `${percentage}%`;
+            scoreText.textContent = `${score} out of ${quizQuestions.length} correct`;
+            timeTaken.textContent = `Total time: ${totalTime} seconds`;
+            
+            // Apply color based on score
+            if (percentage >= 80) {
+                scorePercent.style.color = '#2ecc71'; // Green
+            } else if (percentage >= 60) {
+                scorePercent.style.color = '#3498db'; // Blue
+            } else if (percentage >= 40) {
+                scorePercent.style.color = '#f39c12'; // Orange
+            } else {
+                scorePercent.style.color = '#e74c3c'; // Red
+            }
+        }
+
+        // Reset the quiz to setup screen
+        function resetQuiz() {
+            resultsSection.style.display = 'none';
+            setupSection.style.display = 'block';
+            topicSelect.value = '';
+        }
+
+        // Start the app
+        init();
+    </script>
+</body>
+</html>
